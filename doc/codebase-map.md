@@ -20,7 +20,8 @@ first. For the conceptual layering behind this layout, see
 ## Files to understand first
 
 1. `cli/main.rs` — entry point and command routing.
-2. `cli/args/flags.rs` — every CLI flag and subcommand (`clap`).
+2. `libs/cli_parser/src/defs.rs` — every CLI flag and subcommand (hand-written
+   parser, re-exported through `cli/args/flags.rs`).
 3. `runtime/worker.rs` — how a worker/runtime is initialized.
 4. `runtime/permissions/` — the permission system that gates ops.
 5. `cli/module_loader.rs` — module loading and resolution.

@@ -7,24 +7,20 @@ touching `deno add`, `deno install <pkg>`, or the flags that control where a
 dependency is written (`--dev`, `--save-optional`, `--no-save`, `--save-exact`,
 `--package-json`).
 
-## The two flag parsers
+## The flag parser
 
-Flag parsing currently lives in **two** places and both must be kept in sync
-(the second is replacing the first, see the CLI-parser-split work):
-
-- `cli/args/flags.rs` — the legacy `clap`-based parser. The `add` subcommand is
-  defined in `add_subcommand()`; `install` reuses the shared argument builders
-  (`add_dev_arg()`, `add_optional_arg()`, `add_no_save_arg()`). Both funnel into
-  `add_parse_inner()`, which builds the `AddFlags` struct.
-- `libs/cli_parser/` — the newer hand-written parser. Command shape is declared
-  in `src/defs.rs` (`ADD_SUBCOMMAND`, `INSTALL_SUBCOMMAND`) and converted to
-  flags in `src/convert.rs` (`add_parse`, and the install branch that produces
-  `InstallFlagsLocal::Add`).
+Flag parsing lives in `libs/cli_parser/`, the hand-written parser that replaced
+the old `clap`-based one. Command shape is declared in `src/defs.rs`
+(`ADD_SUBCOMMAND`, `INSTALL_SUBCOMMAND`) and converted to flags in
+`src/convert.rs` (`add_parse`, and the install branch that produces
+`InstallFlagsLocal::Add`). `cli/args/flags.rs` re-exports the result
+(`pub use deno_cli_parser::flags::*`) and exposes `flags_from_vec()`, the entry
+point the CLI calls.
 
 `AddFlags` itself is defined in `libs/cli_parser/src/flags.rs` and re-exported
-through `crate::args`. When you add a field, you must update: the struct, both
-parsers, and every `AddFlags { .. }` literal (there are literals in the parser
-test suites `cli/args/flags.rs` and `libs/cli_parser/src/tests_full.rs`; the
+through `crate::args`. When you add a field, you must update: the struct, the
+conversion in `src/convert.rs`, and every `AddFlags { .. }` literal (there are
+literals in the parser test suite `libs/cli_parser/src/tests_full.rs`; the
 shared test case is `add_or_install_subcommand`, which loops over both `add` and
 `install`).
 

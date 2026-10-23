@@ -28,8 +28,11 @@ module loader that ties module resolution to the runtime.
 Key entry points:
 
 - `cli/main.rs` — process entry point and command routing.
-- `cli/args/flags.rs` — the full `clap` flag and subcommand definition. Adding a
-  flag or a subcommand starts here.
+- `libs/cli_parser/src/` — the hand-written flag and subcommand definitions
+  (`src/defs.rs`), converted into the `Flags` type by `src/convert.rs`.
+  `cli/args/flags.rs` re-exports them (`pub use deno_cli_parser::flags::*`) and
+  adapts them to the rest of the CLI. Adding a flag or a subcommand starts in
+  `libs/cli_parser/src/`.
 - `cli/tools/<tool>/` — one module per subcommand (for example
   `cli/tools/fmt.rs` for a simple command, `cli/tools/test/` for a complex one).
 - `cli/module_loader.rs` — resolves and loads modules, bridging the resolver and
@@ -119,13 +122,13 @@ isolation and reused by other tools.
 
 ## Where to make a change
 
-| You want to…                         | Start in…                         |
-| ------------------------------------ | --------------------------------- |
-| Add or change a CLI flag/subcommand  | `cli/args/flags.rs`, `cli/tools/` |
-| Add a native capability to JS        | `ext/<name>/` (op + JS)           |
-| Change how the runtime is assembled  | `runtime/worker.rs`               |
-| Touch the Rust/V8 bridge or op macro | `libs/core`, `libs/ops`           |
-| Change module/npm/JSR resolution     | `libs/resolver`, `libs/npm`, CLI  |
+| You want to…                         | Start in…                            |
+| ------------------------------------ | ------------------------------------ |
+| Add or change a CLI flag/subcommand  | `libs/cli_parser/src/`, `cli/tools/` |
+| Add a native capability to JS        | `ext/<name>/` (op + JS)              |
+| Change how the runtime is assembled  | `runtime/worker.rs`                  |
+| Touch the Rust/V8 bridge or op macro | `libs/core`, `libs/ops`              |
+| Change module/npm/JSR resolution     | `libs/resolver`, `libs/npm`, CLI     |
 
 See [`codebase-map.md`](./codebase-map.md) for a finer-grained directory map and
 [`testing.md`](./testing.md) for how to test each layer.
